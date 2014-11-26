@@ -1,1 +1,1 @@
-powershell get-content powerpodder.ps1  | powershell -noprofile
+powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -File powerpodder.ps1
