@@ -1,11 +1,7 @@
-[Reflection.Assembly]::LoadFile( `
-  'C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\System.Web.dll')`
-  | out-null 
-
-[CmdletBinding()] # Enables debugging output 
-#loads Web utilities for powershell
- $ProgressPreference = "SilentlyContinue"
-# Power-shell adaptation of Mashpodder. 
+# Powerpodder by Zach Dohman <zmon49@gmail.com>
+#
+# Based on Powershell version of Mashpodder for windows.
+# Fun copyright stuff is below. 
 #
 # Mashpodder by Chess Griffin <chess.griffin@gmail.com>
 # Copyright 2009-2014
@@ -27,6 +23,14 @@
 #  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #  POSSIBILITY OF SUCH DAMAGE.
 #
+# Loads Web utilities for power shell
+[Reflection.Assembly]::LoadFile( `
+  'C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\System.Web.dll')`
+  | out-null 
+# Enables debugging output
+[CmdletBinding()]  
+# Silence Download progress bar
+$ProgressPreference = "SilentlyContinue"
 ### START USER CONFIGURATION
 # Default values can be set here. Command-line flags can override some of
 # these but not all of them.
