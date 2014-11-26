@@ -4,10 +4,10 @@
 
 [CmdletBinding()] # Enables debugging output 
 #loads Web utilities for powershell
- 
-# Power-shell adaptation of Mashpodder.
+ $ProgressPreference = "SilentlyContinue"
+# Power-shell adaptation of Mashpodder. 
 #
-# Mashpodder by Chess Grif}n <chess.grif}n@gmail.com>
+# Mashpodder by Chess Griffin <chess.griffin@gmail.com>
 # Copyright 2009-2014
 #
 # Originally based on BashPodder by Linc Fessenden 12/1/2004
