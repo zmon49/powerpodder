@@ -122,12 +122,6 @@ $DAILY_PLAYLIST=""
 $UPDATE=""
 
 
-
-# Location of binaries.  Below are the paths to third-party binaries used by
-# mashpodder.  This is here for BSD users where these binaries are usually in
-# /usr/local/bin.  Defaults are Linux locations (i.e. /usr/bin).
-
-
 ### END USER CONFIGURATION
 
 $SCRIPT=${0##*/}
@@ -198,8 +192,8 @@ function sanity_checks{
     # Make podcast directory if necessary
     if ( !(test-path $PODCASTDIR )){
         if ( "$CREATE_PODCASTDIR"-eq "1" ){
-            write-verbose -message "Creating podcast directory."
-            mkdir -path $PODCASTDIR
+            write-verbose -message "Creating $PODCASTDIR."
+            mkdir -path $PODCASTDIR | out-null 
             }
         else{
             crunch "\$PODCASTDIR does not exist.  Please re-check the settings `
@@ -212,7 +206,7 @@ function sanity_checks{
     # Make tmp directory if necessary
     if ( !(test-path $TMPDIR) ){
         write-verbose -message "Creating temporary directory."
-        mkdir -path $TMPDIR
+        mkdir -path $TMPDIR | out-null
     }
 
     rm -force $TEMPRSSFILE -ErrorAction SilentlyContinue
@@ -349,9 +343,8 @@ function fix_url{
 function check_directory {
     # Check to see if DATADIR exists and if not, create it
     if ( !(Test-path $PODCASTDIR/$DATADIR)){
-        write-verbose -message "The directory $PODCASTDIR/$DATADIR for $FEED does not \
-            exist.  Creating now..."
-        mkdir -path $PODCASTDIR/$DATADIR
+        write-verbose -message "The directory $PODCASTDIR/$DATADIR for $FEED does not exist.  Creating now...`n"
+        mkdir -path $PODCASTDIR/$DATADIR | out-null
    }
     
 }
@@ -395,7 +388,7 @@ function fetch_podcasts {
 
         if (!$FILE){
           
-            crunch "ERROR: cannot parse any episodes in $FEED. Skipping.\n"
+            crunch "ERROR: cannot parse any episodes in $FEED. Skipping.`n"
             echo "ERROR: could not parse any episodes in $FEED." >> $SUMMARYLOG
             continue
           
@@ -426,8 +419,7 @@ function fetch_podcasts {
                 check_directory $DATADIR
                 if ( !(test-path $PODCASTDIR/$DATADIR/"$FILENAME" )){
                     
-                        write-verbose "NEW:  Fetching $FILENAME and saving in \
-                            $DATADIR directory."
+                        write-verbose "NEW:  Fetching $FILENAME and saving in $DATADIR directory."
                         echo "$FILENAME downloaded to $DATADIR" >> $SUMMARYLOG
                     
                     cd $TMPDIR
@@ -445,13 +437,12 @@ function fetch_podcasts {
                  }
                 else{
                  
-                    write-verbose "$FILENAME appears to already exist in \
-                      $DATADIR directory.  Skipping."
+                    write-verbose "$FILENAME appears to already exist in $DATADIR directory.  Skipping."
                 }
              }
             else{
              
-                  write-verbose "and in \$PODLOG. Skipping."
+                  write-verbose "and in \$PODLOG. Skipping.`n"
              }
            
            $COUNTER=$COUNTER+1
@@ -508,6 +499,8 @@ function final_cleanup () {
     # before exiting.
     cd $CWD
     $IFS=$OLDIFS
+	#Make sure podcast.log only has unique names
+	get-content $PODLOG | sort-object | Get-Unique | set-content $PODLOG
 }
 
 
