@@ -37,7 +37,7 @@
 # with in order to force the user to review this USER CONFIGURATION section
 # and set the various options. Uncomment and set to desired path.
 # Mashpodder will not create this directory for you.
-$BASEDIR="$HOME/mashpodder"
+$BASEDIR="$HOME/mashpodder/"
 
 # RSSFILE: Location of mp.conf }le.  Can be changed to another }le name.
 # Default is "$BASEDIR/mp.conf".
@@ -49,7 +49,7 @@ $RSSFILE="$BASEDIR/mp.conf"
 # reporting the issues that led to these directory changes.  Mashpodder will
 # create this directory if it does not exist unless $CREATE_PODCASTDIR is
 # set to "".
-$PODCASTDIR="$BASEDIR/podcasts"
+$PODCASTDIR="$BASEDIR\podcasts"
 
 # CREATE_PODCASTDIR: Default "1" will create the directory for you if it
 # does not exist; "" means to fail and exit if $PODCASTDIR does not exist.
@@ -117,23 +117,12 @@ $DAILY_PLAYLIST=""
 # downloaded).
 $UPDATE=""
 
-# VERBOSE: Default "" is quiet output; "1" is verbose.
-$VERBOSE=""
 
-# WGET_QUIET: Default is "-q" for quiet wget output; change to "" for wget
-# output.
-$WGET_QUIET="-q"
-
-# WGET_TIMEOUT: Default is 30 seconds; can decrease or increase if some
-# }les are cut short. Thanks to Phil Smith for the bug report.
-$WGET_TIMEOUT="30"
 
 # Location of binaries.  Below are the paths to third-party binaries used by
 # mashpodder.  This is here for BSD users where these binaries are usually in
 # /usr/local/bin.  Defaults are Linux locations (i.e. /usr/bin).
-$WGET="wget"
-$CURL="curl"
-#$XSLTPROC=${XSLTPROC:-"/usr/bin/xsltproc"}
+
 
 ### END USER CONFIGURATION
 
@@ -143,7 +132,7 @@ $TEMPLOG="$TMPDIR/temp.log"
 $SUMMARYLOG="$TMPDIR/summary.log"
 $TEMPRSSFILE="$TMPDIR/mp.conf.temp"
 $TEMPDLFILE="$TMPDIR/dl.xml"
-$DAILYPLAYLIST="$PODCASTDIR/$(date -uformat $DATESTRING)_daily_playlist.m3u"
+$DAILYPLAYLIST="$PODCASTDIR/$(get-date -uformat $DATESTRING)_daily_playlist.m3u"
 $OLDIFS=$IFS
 $IFS='\n'
 
@@ -259,10 +248,10 @@ function sanity_checks{
                 $DATADIR=$ARCHIVETYPE}
             else{
                 if ( $DATEFILEDIR ){
-                    $DATADIR="$DATEFILEDIR/$(date -uformat $DATESTRING)"
+                    $DATADIR="$DATEFILEDIR/$(get-date -uformat $DATESTRING)"
                     }
                 else{
-                    $DATADIR=$(date -uformat $DATESTRING)
+                    $DATADIR=$(get-date -uformat $DATESTRING)
                     }
                 }
            # else{
@@ -287,7 +276,7 @@ function sanity_checks{
        
         write-verbose -message "Backing up the $PODLOG }le."
         
-        $NEWPODLOG="$PODLOG.$(date +$DATESTRING)"
+        $NEWPODLOG="$PODLOG.$(get-date $DATESTRING)"
         cp $PODLOG $NEWPODLOG
     }
 
@@ -360,7 +349,7 @@ function check_directory {
             exist.  Creating now..."
         mkdir -path $PODCASTDIR/$DATADIR
    }
-    return 0
+    
 }
 
 function fetch_podcasts {
@@ -475,7 +464,7 @@ function fetch_podcasts {
         }
         
             Write-Verbose "Done.  Continuing to next feed."
-            echo
+            
         
     } 
     if ( !(test-path $TEMPLOG)){
@@ -490,13 +479,13 @@ function final_cleanup () {
     
         write-verbose "Cleaning up."
     
-    add-content $PODLOG $TEMPLOG
+    get-content $TEMPLOG | add-content $PODLOG 
    
     rm -force $TEMPLOG
     if ( $DAILYPLAYLIST) {
         add-content $DAILYPLAYLIST $TEMPLOG
         
-        rm -force $TEMPLOG
+        rm -force $TEMPLOG -ErrorAction SilentlyContinue
     }
     rm -force $TEMPRSSFILE
      
@@ -505,8 +494,8 @@ function final_cleanup () {
         if ($SUMMARYLOG){
             
             write-verbose "++SUMMARY++"
-            get-content $SUMMARYLOG
-            rm -force $SUMMARYLOG
+            get-content $SUMMARYLOG -ErrorAction SilentlyContinue
+            rm -force $SUMMARYLOG -ErrorAction SilentlyContinue
         }
         write-verbose "################################"
    
@@ -514,7 +503,7 @@ function final_cleanup () {
     # with ctrl-C (see the trap code, below), they will also cd to cwd
     # before exiting.
     cd $CWD
-    IFS=$OLDIFS
+    $IFS=$OLDIFS
 }
 
 
