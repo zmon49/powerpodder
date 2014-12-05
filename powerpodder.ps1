@@ -29,6 +29,12 @@
   | out-null 
 # Enables debugging output
 [CmdletBinding()]  
+Param(
+$verb = 0
+)
+if ($verb -eq 0){
+	
+}
 # Silence Download progress bar
 $ProgressPreference = "SilentlyContinue"
 ### START USER CONFIGURATION
@@ -478,7 +484,7 @@ function final_cleanup () {
    
     rm -force $TEMPLOG
     if ( $DAILYPLAYLIST) {
-        add-content $DAILYPLAYLIST $TEMPLOG
+        get-content $TEMPLOG | add-content $DAILYPLAYLIST 
         
         rm -force $TEMPLOG -ErrorAction SilentlyContinue
     }
