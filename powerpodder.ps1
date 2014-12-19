@@ -29,12 +29,12 @@
   | out-null 
 # Enables debugging output
 [CmdletBinding()]  
-Param(
-$verb = 0
-)
-if ($verb -eq 0){
-	
-}
+ #   Param(
+ #   $verb = 0
+ #   )
+ #   if ($verb -eq 0){
+#	
+#    }
 # Silence Download progress bar
 $ProgressPreference = "SilentlyContinue"
 ### START USER CONFIGURATION
@@ -59,7 +59,7 @@ $RSSFILE="$BASEDIR/mp.conf"
 # reporting the issues that led to these directory changes.  Mashpodder will
 # create this directory if it does not exist unless $CREATE_PODCASTDIR is
 # set to "".
-$PODCASTDIR="$BASEDIR\podcasts"
+$PODCASTDIR="$basedir\podcasts"
 
 # CREATE_PODCASTDIR: Default "1" will create the directory for you if it
 # does not exist; "" means to fail and exit if $PODCASTDIR does not exist.
@@ -167,12 +167,13 @@ Function touch
 
 function crunch {
     write-error -Message $args[0]
+    return
 }
 
 function sanity_checks{
     # Perform some basic checks
     # Print the date
-    
+    $error.clear()
     #write-verbose -message
     write-verbose -message "################################"
     write-verbose -message "Starting mashpodder on"
@@ -199,11 +200,16 @@ function sanity_checks{
     if ( !(test-path $PODCASTDIR )){
         if ( "$CREATE_PODCASTDIR"-eq "1" ){
             write-verbose -message "Creating $PODCASTDIR."
-            mkdir -path $PODCASTDIR | out-null 
+            mkdir -path $PODCASTDIR -ErrorAction SilentlyContinue | out-null
+            if ( !(test-path $PODCASTDIR )){
+                crunch "\$PODCASTDIR does not exist, and can not be made.  Please re-check the settings `
+                at the top of powerpodder.ps1 and try again.  This could also `
+                indiciate an unmounted share, if it is on a shared directory."
+            }
             }
         else{
             crunch "\$PODCASTDIR does not exist.  Please re-check the settings `
-                at the top of mashpodder.sh and try again.  This could also `
+                at the top of powerpodder.ps1 and try again.  This could also `
                 indiciate an unmounted share, if it is on a shared directory."
             exit 0
         }
@@ -290,8 +296,11 @@ function sanity_checks{
 
     # Create podcast log if necessary
     if ( !(test-path $PODLOG) ){
-        write-verbose -message "Creating $PODLOG }le."
+        write-verbose -message "Creating $PODLOG file."
         touch $PODLOG
+    }
+    if($error.Count -gt 2){
+        exit
     }
 }
 
@@ -426,7 +435,7 @@ function fetch_podcasts {
                 if ( !(test-path $PODCASTDIR/$DATADIR/"$FILENAME" )){
                     
                         write-verbose "NEW:  Fetching $FILENAME and saving in $DATADIR directory."
-                        echo "$FILENAME downloaded to $DATADIR" >> $SUMMARYLOG
+                        write-verbose "$FILENAME downloaded to $DATADIR" >> $SUMMARYLOG
                     
                     cd $TMPDIR
                     wget "$DLURL" -Outfile "$FILENAME"
@@ -460,7 +469,7 @@ function fetch_podcasts {
                 
                     Write-Verbose "Creating $DATADIR m3u playlist."
                 
-                ls $PODCASTDIR/$DATADIR | add-content $PODCASTDIR/$DATADIR/podcast.m3u $_
+                ls $PODCASTDIR/$DATADIR | add-content $PODCASTDIR/$DATADIR/podcast.m3u 
             }
         }
         
@@ -482,14 +491,14 @@ function final_cleanup () {
     
     get-content $TEMPLOG | add-content $PODLOG 
    
-    rm -force $TEMPLOG
+   
     if ( $DAILYPLAYLIST) {
         get-content $TEMPLOG | add-content $DAILYPLAYLIST 
         
-        rm -force $TEMPLOG -ErrorAction SilentlyContinue
+        
     }
     rm -force $TEMPRSSFILE
-     
+     rm -force $TEMPLOG -ErrorAction SilentlyContinue
         Write-Verbose "Total downloads: $NEWDL"
         Write-Verbose "All done."
         if ($SUMMARYLOG){
